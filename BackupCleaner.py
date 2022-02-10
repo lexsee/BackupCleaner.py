@@ -10,8 +10,8 @@ def folder_dir():
     '''
     with open("BackupCleaner.ini") as f:
         dir_path = f.readlines()
-    WORK_DIR = dir_path[0][9:-1]
-    BACK_DIR = dir_path[1][9:]
+    WORK_DIR = str("\\\\?\\" + dir_path[0][9:-1])
+    BACK_DIR = str("\\\\?\\" + dir_path[1][9:])
     if not os.path.exists(WORK_DIR):
         raise SystemExit("\n\tВНИМАНИЕ! Неверный путь к рабочему каталогу!")
     elif not os.path.exists(BACK_DIR):
@@ -62,8 +62,8 @@ def folder_print(folder_dict):
     os.makedirs("logs", exist_ok=True)
     with open (str("logs\\"+now.strftime("%Y-%m-%d-%H-%M")+".csv"), "w") as f:
         for keys, values in folder_dict.items():
-            print(f"\t{keys}    {round(values / 1024, 3)} Kb")
-            print(f"{keys};{round(values / 1024, 3)} Kb", file=f, sep="\n")
+            print(f"\t{keys[4:]}    {round(values / 1024, 3)} Kb")
+            print(f"{keys[4:]};{round(values / 1024, 3)} Kb", file=f, sep="\n")
 
 def main():
     '''
