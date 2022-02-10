@@ -5,16 +5,24 @@ import datetime
 
 def folder_dir():
     '''
-        Функция выдаёт адреса рабочего каталога и бэкапа.
+        Функция получает адреса рабочего каталога и бэкапа из файла
+        BackupCleaner.ini и возвращает их в качестве переменных (str).
     '''
-    WORK_DIR = 'c:\\Users\\KondratyevAV\\Desktop\\TEST\\D'
-    BACK_DIR = 'c:\\Users\\KondratyevAV\\Desktop\\TEST\\Y'
-    return WORK_DIR, BACK_DIR
+    with open("BackupCleaner.ini") as f:
+        dir_path = f.readlines()
+    WORK_DIR = dir_path[0][9:-1]
+    BACK_DIR = dir_path[1][9:]
+    if not os.path.exists(WORK_DIR):
+        raise SystemExit("\n\tВНИМАНИЕ! Неверный путь к рабочему каталогу!")
+    elif not os.path.exists(BACK_DIR):
+        raise SystemExit("\n\tВНИМАНИЕ! Неверный путь к резервному каталогу!")
+    else:
+        return WORK_DIR, BACK_DIR
 
 def find_uncommon(WORK_DIR, BACK_DIR):
     '''
-        Функция получает адреса рабочего каталога и бэкапа,
-        сравнивает их и возвращает список каталогов
+        Функция получает переменные (str) с адресами рабочего каталога и бэкапа,
+        сравнивает их и возвращает список (list) каталогов
         присутствующих в бэкапе и отсутствующих в рабочем каталоге.
     '''
     dcmp = dircmp(WORK_DIR, BACK_DIR)
@@ -27,9 +35,9 @@ def find_uncommon(WORK_DIR, BACK_DIR):
 
 def folder_size(folder_list):
     '''
-        Функция получает список адресов каталогов,
+        Функция получает список (list) адресов каталогов,
         производит рекурсивные вычисления их размера,
-        возвращает словарь вида "адрес каталога : размер каталога"
+        возвращает словарь (dict) вида "адрес каталога : размер каталога"
     '''
     folder_dict = {}
     for roots in folder_list:
@@ -46,12 +54,13 @@ def folder_size(folder_list):
 
 def folder_print(folder_dict):
     '''
-        Функция получает словарь вида "адрес каталога : размер каталога",
+        Функция получает словарь (dict) вида "адрес каталога : размер каталога",
         выводит эти данные на экран и формирует лог-файл в формате csv.
     '''
     now = datetime.datetime.now()
     print("\n\t"+now.strftime("%d-%m-%Y %H:%M")+"\n")
-    with open (str(now.strftime("%Y-%m-%d-%H-%M")+".csv"), "w") as f:
+    os.makedirs("logs", exist_ok=True)
+    with open (str("logs\\"+now.strftime("%Y-%m-%d-%H-%M")+".csv"), "w") as f:
         for keys, values in folder_dict.items():
             print(f"\t{keys}    {round(values / 1024, 3)} Kb")
             print(f"{keys};{round(values / 1024, 3)} Kb", file=f, sep="\n")
